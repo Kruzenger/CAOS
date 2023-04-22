@@ -1,0 +1,1 @@
+../contest_8/task_1.c

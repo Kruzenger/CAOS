@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# set -x
+declare -A matrix
+
+# echo "" >> input.csv
+
+num_rows=0
+N=0
+
+function DecreaseRow() {
+    K=${matrix[$2, $3]}
+    for((i=$3; i<N; ++i)) 
+    do
+        matrix[$2, $i]=$(echo "(${matrix[$2, $i]}) - (${matrix[$1, $i]}) * ($K)" | bc -l) 
+    done
+}
+
+function DevideRow() {
+    K=${matrix[$1, $1]}
+    for ((i=$1; i<N; ++i)) 
+    do
+        matrix[$1, $i]=$(echo "(${matrix[$1, $i]}) / ($K)" | bc -l) 
+    done
+}
+
+while IFS=',' read -a row
+do
+    N=${#row[@]}
+    for ((i=0; i<N; ++i)) 
+    do
+        matrix[$num_rows, $i]=${row[$i]}    
+    done
+    num_rows=$(($num_rows+1))
+done < input.csv
+
+for ((m=0; m<num_rows; ++m))
+do
+    DevideRow $m
+    for ((j=0; j<$m; ++j)) 
+    do
+        DecreaseRow $m $j $m
+    done
+    for ((j=$(($m+1)); j<num_rows; ++j)) 
+    do
+        DecreaseRow $m $j $m
+    done
+done
+
+for ((m=0; m<num_rows; ++m))
+do
+    echo "(${matrix[$m, $num_rows]}) / (1)" | bc
+done
